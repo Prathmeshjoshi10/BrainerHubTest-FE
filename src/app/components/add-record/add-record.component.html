@@ -1,12 +1,8 @@
-<p>{{ isEditable }}</p>
 <div class="add-record-container">
-  <!-- <h2>{{ isEditMode ? "Edit Record" : "Add New Record" }}</h2> -->
-  <h2 *ngIf="isEditable">Edit Record</h2>
-  <h2 *ngIf="!isEditable">Add New Record {{ isEditable }}</h2>
+  <h2>{{ isEditMode ? "Edit Record" : "Add New Record" }}</h2>
   <form (ngSubmit)="onSubmit()" [formGroup]="addRecordForm" novalidate>
-    <!-- <input type="hidden" id="_id" formControlName="_id" /> -->
+    <input type="hidden" id="_id" formControlName="_id" />
     <div class="add-record-container">
-      <h2>Add New Record</h2>
       <form (ngSubmit)="onSubmit()" [formGroup]="addRecordForm" novalidate>
         <div class="form-group">
           <label for="firstname">First Name</label>
@@ -39,6 +35,52 @@
           <input type="text" id="city" formControlName="city" required />
         </div>
 
+        <!-- Code for dependent dropdowns (Facing issue) -->
+        <!-- <div class="form-group">
+          <label for="Countries" class="col-form-label">Choose Country:</label>
+          <select
+            name="country"
+            id="country"
+            formControlName="country"
+            (change)="getStates(addRecordForm.get('country')?.value['cCode'])"
+          >
+            <option [value]="null" disabled>Select Country</option>
+            <option *ngFor="let country of countriesName" [value]="country">
+              <p>{{ country | json }}</p>
+              {{ country.name }}
+              {{ country.flag }}
+              {{ country.cCode }}
+            </option>
+          </select>
+        </div>
+        <p>{{ addRecordForm.get("country")?.value | json }}</p>
+
+        <p>====>{{ addRecordForm.get("country")?.value.cCode | json }}</p>
+        <div class="form-group">
+          <label for="States" class="col-form-label">Choose State:</label>
+          <select name="state" id="state" formControlName="state">
+            <option [value]="null">Select State</option>
+            <option *ngFor="let state of statesData" [value]="state.sCode">
+              {{ state.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="City" class="col-form-label">Choose City:</label>
+          <select
+            name="city"
+            id="city"
+            formControlName="city"
+            [disabled]="addRecordForm.get('state')?.value === null"
+          >
+            <option [value]="null" disabled>Select City</option>
+            <option *ngFor="let city of citiesData" [value]="city.name">
+              {{ city.name }}
+            </option>
+          </select>
+        </div> -->
+
         <!-- <div class="form-group">
           <label for="image">Image</label>
           <input
@@ -53,19 +95,11 @@
         </div> -->
         <div class="form-actions">
           <button type="submit" [disabled]="addRecordForm.invalid">
-            Add Record
+            {{ isEditMode ? "Save Changes" : "Add Record" }}
           </button>
           <button type="button" (click)="cancelEdit()">Close</button>
         </div>
       </form>
     </div>
-    <!-- <div class="form-actions">
-      <button type="submit" [disabled]="addRecordForm.invalid">
-        {{ isEditMode ? "Save Changes" : "Add Record" }}
-      </button>
-      <button type="button" (click)="cancelEdit()" *ngIf="isEditMode">
-        Cancel
-      </button>
-    </div> -->
   </form>
 </div>

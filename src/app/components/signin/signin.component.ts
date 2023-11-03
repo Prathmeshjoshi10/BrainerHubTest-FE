@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UserService } from 'src/app/services/user.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signin',
@@ -9,7 +11,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class SigninComponent implements OnInit {
   signinForm!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private userService: UserService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.signinForm = this.formBuilder.group({
@@ -21,8 +27,16 @@ export class SigninComponent implements OnInit {
   onSubmit() {
     if (this.signinForm.valid) {
       const formData = this.signinForm.value;
-      // Implement your Sign In logic here, e.g., make an API call
-      console.log('Sign In data:', formData);
+      this.userService.signin(formData).subscribe(
+        (response: any) => {
+          this.router.navigate(['list']);
+          console.log('Signin success:', response);
+        },
+        (error: any) => {
+          console.error('Signin error:', error);
+          // Handle login error, show a message, or clear the form.
+        }
+      );
     }
   }
 }

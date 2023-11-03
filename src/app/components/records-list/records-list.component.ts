@@ -20,12 +20,15 @@ export class RecordsListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRecords();
+
+    this.recordsService.addRecord$.subscribe(() => {
+      this.loadRecords();
+    });
   }
 
   loadRecords() {
     this.recordsService.getRecords().subscribe((data) => {
       this.records = data.records;
-      console.log('records --->', this.records);
     });
   }
 
@@ -38,12 +41,12 @@ export class RecordsListComponent implements OnInit {
     try {
       this.recordsService.deleteRecord(id).subscribe(
         (response: any) => {
-          const index = this.records.findIndex((record) => record.id === id);
+          const index = this.records.findIndex((record) => record._id === id);
 
           if (index !== -1) {
             this.records.splice(index, 1);
-            this.cd.detectChanges();
           }
+          this.cd.detectChanges();
 
           console.log('Record with ID', id, 'deleted.');
         },

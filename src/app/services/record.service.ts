@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecordService {
   private apiUrl = 'http://localhost:3000/api/records';
+
+  private addRecordSubject = new BehaviorSubject<void>(undefined);
+  addRecord$ = this.addRecordSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -15,26 +18,22 @@ export class RecordService {
     return this.http.get(endpoint);
   }
 
-  async addRecord(recordData: any) {
-    console.log('recordDaya', recordData);
-
+  async addRecord(recordData: any): Promise<Observable<any>> {
     const endpoint = `${this.apiUrl}/create`;
-    const add = this.http.post(endpoint, recordData);
-    console.log('add---->', add);
-
-    return add;
+    return this.http.post(endpoint, recordData).pipe(
+      tap(() => {
+        this.addRecordSubject.next();
+      })
+    );
   }
 
   async editRecord(recordData: any) {
-    console.log('recordDaya', recordData);
-
-    console.log('recordData._id', recordData._id);
-
     const endpoint = `${this.apiUrl}/edit/${recordData._id}`;
-    const edited = this.http.patch(endpoint, recordData);
-    console.log('add---->', edited);
-
-    return edited;
+    return this.http.patch(endpoint, recordData).pipe(
+      tap(() => {
+        this.addRecordSubject.next();
+      })
+    );
   }
 
   deleteRecord(id: any): Observable<any> {

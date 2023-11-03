@@ -1,6 +1,15 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RecordService } from 'src/app/services/record.service';
+import { Country, State, City } from 'country-state-city';
 
 @Component({
   selector: 'app-add-record',
@@ -15,9 +24,19 @@ export class AddRecordComponent implements OnInit {
   @Input()
   recordData: any = {};
   @Output() cancelEvent = new EventEmitter();
-  @Output() deleteEvent = new EventEmitter();
 
   isEditable: boolean = false;
+
+  countries: {}[] = [];
+  countriesName: any;
+  statesData: any;
+  citiesData: any;
+
+  selectedCountryCode: any;
+
+  sCountryName: any;
+  sStateName: any;
+  sCityName: any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -25,20 +44,36 @@ export class AddRecordComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.getCountries();
     this.addRecordForm = this.formBuilder.group({
-      // _id: [''],
+      _id: [''],
       firstname: ['', Validators.required],
       lastname: ['', Validators.required],
       country: ['', Validators.required],
       state: ['', Validators.required],
       city: ['', Validators.required],
       // image: [null],
+
+      /* country: ['', Validators.required],
+      state: [{ value: null, disabled: true }, Validators.required],
+      city: [{ value: null, disabled: true }, Validators.required], */
     });
 
     if (this.isEditMode) {
       this.isEditable = this.isEditMode;
       this.setFormDataForEdit();
     }
+
+    /* this.addRecordForm
+      .get('country')
+      ?.valueChanges.subscribe((selectedCountry) => {
+        console.log('selectedCiuntry:::', JSON.stringify(selectedCountry));
+        console.log(selectedCountry.name);
+
+        if (selectedCountry) {
+          this.statesData = this.getStates(selectedCountry);
+        }
+      }); */
   }
 
   setFormDataForEdit() {
@@ -48,7 +83,6 @@ export class AddRecordComponent implements OnInit {
   async onSubmit() {
     if (this.addRecordForm.valid) {
       const formData = this.addRecordForm.value;
-      console.log('formData:::', formData);
 
       if (this.isEditMode) {
         (await this.recordService.editRecord(formData)).subscribe(
@@ -56,18 +90,16 @@ export class AddRecordComponent implements OnInit {
             this.addRecordForm.reset();
             this.isEditMode = false;
             this.cancelEvent.emit(true);
-            console.log('updated Record Data:', response);
           },
           (error: any) => {
             console.error('error:', error);
           }
         );
-        console.log('Edited Record Data:', formData);
       } else {
+        delete formData._id;
         (await this.recordService.addRecord(formData)).subscribe(
           (response: any) => {
             this.cancelEvent.emit(true);
-            console.log('New Record Data:', response);
           },
           (error: any) => {
             console.error('error:', error);
@@ -94,5 +126,51 @@ export class AddRecordComponent implements OnInit {
     this.addRecordForm.reset();
     this.isEditMode = false;
     this.cancelEvent.emit(true);
+  }
+
+  getCountries() {
+    // this.countries.push(Country.getAllCountries());
+    const data = Country.getAllCountries();
+    const name = data.map((i) => ({
+      name: i.name,
+      flag: i.flag,
+      cCode: i.isoCode,
+    }));
+    this.countriesName = name;
+  }
+
+  /* onCountrySelected(event: any) {
+    const selectedCountryCode = event.target.value;
+    // Do something with the selectedCountryCode
+    console.log('Selected country code:', selectedCountryCode);
+    // Call your getStates method here with the selectedCountryCode
+    this.getStates(selectedCountryCode);
+  } */
+
+  getStates(cCode: any) {
+    debugger;
+    this.selectedCountryCode = cCode;
+
+    let sCName = Country.getCountryByCode(cCode);
+    this.sCountryName = sCName?.name;
+
+    const states = State.getStatesOfCountry(cCode);
+
+    const sData = states.map((i) => ({ name: i.name, sCode: i.isoCode }));
+    this.statesData = sData;
+  }
+
+  getCities(sCode: any) {
+    let countryCode = this.selectedCountryCode;
+    let sSName = State.getStateByCodeAndCountry(sCode, countryCode);
+    this.sStateName = sSName?.name;
+    const cities = City.getCitiesOfState(countryCode, sCode);
+
+    const cData = cities.map((i) => ({ name: i.name }));
+    this.citiesData = cData;
+  }
+
+  getCity(cityName: any) {
+    this.sCityName = cityName;
   }
 }
