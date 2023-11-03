@@ -1,0 +1,41 @@
+<button class="btn btn-dark add" (click)="addRecord = true">Add new</button>
+<div class="list-records-container" *ngIf="!addRecord">
+  <h2>Record List</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>City</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let record of records">
+        <td>{{ record._id }}</td>
+        <td>{{ record.firstname }}</td>
+        <td>{{ record.lastname }}</td>
+        <td>{{ record.city }}</td>
+        <td>
+          <button
+            (click)="editRecord(record); editStatus = true; addRecord = false"
+            class="btn btn-primary"
+          >
+            Edit
+          </button>
+          <button (click)="deleteRecord(record._id)" class="btn btn-danger">
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<app-add-record
+  *ngIf="addRecord || editStatus"
+  [isEditMode]="editStatus"
+  [recordData]="editableRecord"
+  (cancelEvent)="closeAdd($event)"
+></app-add-record>

@@ -1,0 +1,30 @@
+<nav class="navbar navbar-expand navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand font-weight-bold">BrainerHub Recs</a>
+
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/list">List Records</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="signup">Sign Up</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="signin">Sign In</a>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-outline-danger" (click)="logout()">
+            Logout
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
